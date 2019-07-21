@@ -1,16 +1,31 @@
 package guru.springframework.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 public class UnitOfMeasure {
-    String uom;
 
-    public String getUom() {
-        return uom;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String dscription;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setUom(String uom) {
-        this.uom = uom;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getDscription() {
+        return dscription;
+    }
+
+    public void setDscription(String dscription) {
+        this.dscription = dscription;
     }
 }
