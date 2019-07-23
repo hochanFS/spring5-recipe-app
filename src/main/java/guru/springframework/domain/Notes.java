@@ -9,12 +9,10 @@ public class Notes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne // no need to define cascade because this instance recipe is going to own this
-    // That is, even if we delete the notes, the recipe associated with the notes will still remain
-    // in the database.
+    @OneToOne
     private Recipe recipe;
 
-    @Lob // allows String to be longer than 255 characters
+    @Lob
     private String recipeNotes;
 
     public Long getId() {
