@@ -142,9 +142,12 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         guacRecipe.getIngredients().add(new Ingredient("Cilantro", new BigDecimal(2), tableSpoonUom, guacRecipe));
         guacRecipe.getIngredients().add(new Ingredient("freshly grated black pepper", new BigDecimal(2), dashUom, guacRecipe));
         guacRecipe.getIngredients().add(new Ingredient("ripe tomato, seeds and pulp removed, chopped", new BigDecimal(".5"), eachUom, guacRecipe));
+        guacRecipe.setUrl("https://www.simplyrecipes.com/recipes/perfect_guacamole/");
 
         guacRecipe.getCategories().add(americanCategory);
         guacRecipe.getCategories().add(mexicanCategory);
+        guacRecipe.setServings(4);
+        guacRecipe.setSource("Simply Recipes");
 
         //add to return list
         recipes.add(guacRecipe);
