@@ -12,15 +12,14 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class ImageControllerTest {
+
     @Mock
     ImageService imageService;
 
@@ -28,18 +27,22 @@ public class ImageControllerTest {
     RecipeService recipeService;
 
     ImageController controller;
+
     MockMvc mockMvc;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
         controller = new ImageController(imageService, recipeService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new ControllerExceptionHandler())
+                .build();
     }
 
     @Test
     public void getImageForm() throws Exception {
-        // given
+        //given
         RecipeCommand command = new RecipeCommand();
         command.setId(1L);
 
@@ -51,13 +54,14 @@ public class ImageControllerTest {
                 .andExpect(model().attributeExists("recipe"));
 
         verify(recipeService, times(1)).findCommandById(anyLong());
-    }
 
+    }
 
     @Test
     public void handleImagePost() throws Exception {
-        MockMultipartFile multipartFile = new MockMultipartFile("imagefile",
-                "testing.txt", "text/plain", "Spring Framework Guru".getBytes());
+        MockMultipartFile multipartFile =
+                new MockMultipartFile("imagefile", "testing.txt", "text/plain",
+                        "Spring Framework Guru".getBytes());
 
         mockMvc.perform(multipart("/recipe/1/image").file(multipartFile))
                 .andExpect(status().is3xxRedirection())
@@ -66,9 +70,11 @@ public class ImageControllerTest {
         verify(imageService, times(1)).saveImageFile(anyLong(), any());
     }
 
+
     @Test
     public void renderImageFromDB() throws Exception {
-        // given
+
+        //given
         RecipeCommand command = new RecipeCommand();
         command.setId(1L);
 
@@ -76,20 +82,30 @@ public class ImageControllerTest {
         Byte[] bytesBoxed = new Byte[s.getBytes().length];
 
         int i = 0;
-        for (byte primByte: s.getBytes()) {
+
+        for (byte primByte : s.getBytes()){
             bytesBoxed[i++] = primByte;
         }
 
         command.setImage(bytesBoxed);
+
         when(recipeService.findCommandById(anyLong())).thenReturn(command);
 
-        // when
+        //when
         MockHttpServletResponse response = mockMvc.perform(get("/recipe/1/recipeimage"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
-        byte[] responseBytes = response.getContentAsByteArray();
-        assertEquals(s.getBytes().length, responseBytes.length);
 
+        byte[] reponseBytes = response.getContentAsByteArray();
 
+        assertEquals(s.getBytes().length, reponseBytes.length);
+    }
+
+    @Test
+    public void testGetImageNumberFormatException() throws Exception {
+
+        mockMvc.perform(get("/recipe/random_string/recipeimage"))
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("400error"));
     }
 }
